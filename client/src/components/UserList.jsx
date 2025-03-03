@@ -7,12 +7,14 @@ import Search from "./Search.jsx";
 import UserListItem from "./UserListItem.jsx";
 import UserCreate from "./UserCreate.jsx";
 import UserInfo from "./UserInfo.jsx";
+import UserDelete from "./UserDelete.jsx";
 
 export default function UserList() {
 
     const [users, setUsers] = useState([]);
     const [showCreate, setShowCreate] = useState(false);
-    const [userIdInfo, setUserIdInfo] = useState(null)
+    const [userIdInfo, setUserIdInfo] = useState(null);
+    const [userIdDelete, setUserIdDelete] = useState(null);
 
     useEffect(() => {
         userService.getAll()
@@ -50,6 +52,22 @@ export default function UserList() {
         setUserIdInfo(null);
     }
 
+    const deleteClickHandler = (userId) => {
+        setUserIdDelete(userId);
+    }
+
+    const deleteCloseHandler = () => {
+        setUserIdDelete(null)
+    }
+
+    const userDeleteHandler = async () => {
+        await userService.delete(userIdDelete);
+
+        setUsers(state => state.filter(user => user._id !== userIdDelete));
+
+        setUserIdDelete(null)
+    }
+
   return (
     <section className="card users-container">
       {/* Search bar component */}
@@ -66,6 +84,8 @@ export default function UserList() {
             onClose={infoCloseHandler}
         />
     )}
+    {userIdDelete && <UserDelete onClose={deleteCloseHandler} onDelete={userDeleteHandler}/>}
+
       {/* Table component */}
       <div className="table-wrapper">
         <div>
@@ -220,6 +240,7 @@ export default function UserList() {
             {users.map(user => <UserListItem 
                 key={user._id} 
                 onInfoClick={infoClickHandler}
+                onDeleteClick={deleteClickHandler}
                 {...user}
             />)}
           </tbody>
