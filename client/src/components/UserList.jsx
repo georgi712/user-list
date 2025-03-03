@@ -12,18 +12,29 @@ import UserDelete from "./UserDelete.jsx";
 export default function UserList() {
 
     const [users, setUsers] = useState([]);
+    const [showUsers, setShowUsers] = useState([]);
     const [showCreate, setShowCreate] = useState(false);
     const [userIdInfo, setUserIdInfo] = useState(null);
     const [userIdDelete, setUserIdDelete] = useState(null);
     const [userIdEdit, setUserIdEdit] = useState(null);
+    const [search, setSearch] = useState({});
 
     useEffect(() => {
         userService.getAll()
             .then(result => {
                 setUsers(result);
+                setShowUsers(result);
             })
-            // .catch()
     }, [])
+
+    useEffect(() => {
+        const isEmpty = Object.keys(search).length === 0 || Object.values(search).every(value => value === "");        
+        if (isEmpty) {
+            setShowUsers(users)
+        } else {        
+            setShowUsers(users.filter(user => user[search.criteria] === search.search))
+        }   
+    }, [search, users])
 
     const createUserClickHandler = () => {
         setShowCreate(true)
@@ -87,10 +98,28 @@ export default function UserList() {
         setUserIdEdit(null)
     }
 
+    const searchClickHandler = (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const userData= Object.fromEntries(formData);
+
+        setSearch(userData)
+    }
+
+    const clearClickHandler = (e) => {
+        const form = e.target.closest("form");
+        form.reset();
+        setSearch({});
+    }
+
   return (
     <section className="card users-container">
       {/* Search bar component */}
-      <Search />
+      <Search 
+        onSearch={searchClickHandler}
+        onClear={clearClickHandler} 
+      />
 
       {showCreate && (
       <UserCreate  
@@ -268,7 +297,7 @@ export default function UserList() {
           </thead>
           <tbody>
             {/* Table row component */}
-            {users.map(user => <UserListItem 
+            {showUsers.map(user => <UserListItem 
                 key={user._id} 
                 onInfoClick={infoClickHandler}
                 onDeleteClick={deleteClickHandler}
