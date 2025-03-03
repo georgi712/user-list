@@ -1,12 +1,14 @@
 import { fromIsoDate } from "../utils/dateTimeUtils.js";
 
 export default function UserListItem({
+    _id,
     firstName,
     lastName,
     email,
     phoneNumber,
     createdAt,
-    imageUrl
+    imageUrl,
+    onInfoClick
 }) {
     return (
         <tr>
@@ -54,7 +56,7 @@ export default function UserListItem({
                     ></path>
                   </svg>
                 </button>
-                <button className="btn info-btn" title="Info">
+                <button className="btn info-btn" title="Info" onClick={() => onInfoClick(_id)}>
                   <svg
                     aria-hidden="true"
                     focusable="false"
