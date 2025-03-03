@@ -17,18 +17,14 @@ export default {
     },
 
     async create(userData) {
-        const { country, city, street, streetNumber, ...postData } = userData;
-        
-        postData.address = {country, city, street, streetNumber};
-        postData.createdAt = new Date().toISOString();
-        postData.updatedAt = new Date().toISOString();
+        const postData = transformUserData(userData)
         
         const response = await fetch(baseUrl, {
             method: 'POST',
             headers: {
                 'Content-type': 'application/json',
             },
-            body: JSON.stringify(userData)
+            body: JSON.stringify(postData)
         });
 
         const result = await response.json();
@@ -41,6 +37,29 @@ export default {
         })
         const result = await response.json();
         return result
+    },
+
+    async update(userId, userData) {
+        const postData = transformUserData(userData)
+        postData._id = userId;
+        const response = await fetch(`${baseUrl}/${userId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(postData)
+        })
+        const result = await response.json();
+        return result;
     }
 
+}
+
+function transformUserData(userData) {
+    const { country, city, street, streetNumber, ...postData } = userData;
+        
+        postData.address = {country, city, street, streetNumber};
+        postData.createdAt = new Date().toISOString();
+        postData.updatedAt = new Date().toISOString();
+        return postData;
 }
